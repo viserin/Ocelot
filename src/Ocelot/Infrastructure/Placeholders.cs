@@ -27,6 +27,7 @@ namespace Ocelot.Infrastructure
                 { "{BaseUrl}", GetBaseUrl() },
                 { "{TraceId}", GetTraceId() },
                 { "{RemoteIpAddress}", GetRemoteIpAddress() },
+                { "{RemotePort}", GetRemotePort() },
                 { "{UpstreamHost}", GetUpstreamHost() },
             };
 
@@ -95,6 +96,23 @@ namespace Ocelot.Infrastructure
                 catch
                 {
                     return new ErrorResponse<string>(new CouldNotFindPlaceholderError("{RemoteIpAddress}"));
+                }
+            };
+        }
+
+        private Func<Response<string>> GetRemotePort()
+        {
+            return () =>
+            {
+                // this can blow up so adding try catch and return error
+                try
+                {
+                    var remotePort = _httpContextAccessor.HttpContext.Connection.RemotePort.ToString();
+                    return new OkResponse<string>(remotePort);
+                }
+                catch
+                {
+                    return new ErrorResponse<string>(new CouldNotFindPlaceholderError("{RemotePort}"));
                 }
             };
         }
